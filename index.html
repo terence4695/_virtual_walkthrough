@@ -1,1 +1,150 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>terry test </title>
+    <meta name="description" content="walkthrough"></meta>
+    <!-- <script src="https://aframe.io/releases/1.0.3/aframe.min.js"></script> -->
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="aframe-cursor-teleport-component.min.js"></script>
+    <script src="https://rawgit.com/fernandojsg/aframe-teleport-controls/master/dist/aframe-teleport-controls.min.js"></script>
+    <script src="aframe-environment-map-component.min.js"></script>
+    <script src="aframe-environment-component.js"></script>
 
+  </head>
+  <body>
+    <!-- <script>
+      AFRAME.registerComponent('color-change', {
+        init: function(){
+          this.el.addEventListener('click', function(){
+            //set material color to random hex value
+            var randomColor = '#'+Math.floor(Math.random()*16777215).toString(16);
+            this.setAttribute( 'material', {color: randomColor} );
+          })
+        }
+      });
+    </script> -->
+
+    <script src="/script.js" defer></script>
+    <script>
+      AFRAME.registerComponent("foo", {
+        init: function() {
+          var targetCube = new THREE.WebGLRenderTargetCube(512, 512);
+          var renderer = this.el.sceneEl.renderer;
+
+          this.el.addEventListener("model-loaded", e => {
+            let mesh = this.el.getObject3D("mesh");
+            
+            var texture = new THREE.TextureLoader().load(
+              "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Goat_Peak%2C_Cascades.jpg/1920px-Goat_Peak%2C_Cascades.jpg",
+              function() {
+                var cubeTex = targetCube.fromEquirectangularTexture(renderer, texture);
+                mesh.traverse(function(el) {
+                  if (el.material) {
+                    el.material.envMap = cubeTex.texture;
+                    el.material.envMap.intensity = 1;
+                    el.material.needsUpdate = true;
+                  }
+                });
+               renderer.toneMapping = THREE.ACESFilmicToneMapping;
+                renderer.outputEncoding = THREE.sRGBEncoding;
+              }
+            );
+          });
+        }
+      });
+    </script>
+   <a-scene light="defaultLightsEnabled: false" cursor="rayOrigin: mouse" gltf-model="dracoDecoderPath: https://propvr.tech/draco/;" raycaster="objects: .clickable" renderer="antialias: true;
+  precision:low;
+  foveationLevel:2
+   sortObjects: false;
+   maxCanvasWidth: 1920;
+   maxCanvasHeight: 1080;">
+   <a-entity light="type: ambient; color:#ffd7b3; intensity:1"></a-entity>
+       
+      <a-assets>
+
+        <a-asset-item id="environment" src="https://cdn.glitch.com/073d2935-5bcc-443b-a9a8-5a1ebaf21213%2F3bhk_Wallcelling.glb?v=1633341871755"></a-asset-item>
+        <a-asset-item id="bath" src="https://cdn.glitch.com/073d2935-5bcc-443b-a9a8-5a1ebaf21213%2F3bhk_Bathrooms.glb?v=1633341876429"></a-asset-item>
+        <a-asset-item id="bed" src="https://cdn.glitch.com/073d2935-5bcc-443b-a9a8-5a1ebaf21213%2F3bhk_Bedroom.glb?v=1633341872951"></a-asset-item>
+        <a-asset-item id="gbed" src="https://cdn.glitch.com/073d2935-5bcc-443b-a9a8-5a1ebaf21213%2F3bhk_GuestBed.glb?v=1633341856189"></a-asset-item>
+        <a-asset-item id="kitchen" src="https://cdn.glitch.com/073d2935-5bcc-443b-a9a8-5a1ebaf21213%2F3bhk_kitchen.glb?v=1633341862605"></a-asset-item>
+        <a-asset-item id="living" src="https://cdn.glitch.com/073d2935-5bcc-443b-a9a8-5a1ebaf21213%2F3bhk_Living.glb?v=1633341884605"></a-asset-item>
+        <a-asset-item id="master" src="https://cdn.glitch.com/073d2935-5bcc-443b-a9a8-5a1ebaf21213%2F3bhk_MasterBed.glb?v=1633341878333"></a-asset-item>
+        
+       
+
+       
+      
+        <a-asset-item id="floor" src="models/col_mesh.glb"></a-asset-item>
+      </a-assets>
+
+      <!-- player -->
+      <a-entity id="cameraRig" position="-200 100 -100" cursor-teleport="cameraRig: #cameraRig; cameraHead: #head; collisionEntities: .collision; ignoreEntities: .clickable">
+        <a-entity id="head" position="0 50 0" camera="near:1, far:10000" look-controls="reverseMouseDrag: true;"></a-entity>
+        <a-entity
+          laser-controls="hand: left"
+          raycaster="objects: .clickable; far: 100"
+          line="color: red; opacity: 0.75"
+          teleport-controls="
+            collisionEntities: #vr-collider;
+            cameraRig: #cameraRig;
+            teleportOrigin: #head;
+            button: thumbstick;
+            curveShootingSpeed: 8"></a-entity> 
+        <a-entity
+          laser-controls="hand: right"
+          raycaster="objects: .clickable"
+          line="color: red; opacity: 0.75"
+          teleport-controls="
+            collisionEntities: #vr-collider;
+            cameraRig: #cameraRig;
+            teleportOrigin: #head;
+            button: thumbstick;
+            curveShootingSpeed: 8"></a-entity>
+      </a-entity>
+
+      <!-- scene model -->
+      <a-entity class="collision" foo gltf-model="#environment" position = "0 100  -100" scale ="0.5 0.5 0.5 " visible="true"></a-entity>
+      <a-entity class="collision" gltf-model="#floor" position = "0 100  -100" scale ="0.5 0.5 0.5 " visible="false"></a-entity>
+      <a-entity class="collision" foo gltf-model="#bath" position = "0 100  -100" scale ="0.5 0.5 0.5 " visible="true"></a-entity>
+      <a-entity class="collision" foo gltf-model="#bed" position = "0 100  -100" scale ="0.5 0.5 0.5 " visible="true"></a-entity>
+      <a-entity class="collision" foo gltf-model="#gbed" position = "0 100  -100" scale ="0.5 0.5 0.5 " visible="true"></a-entity>
+      <a-entity class="collision" foo gltf-model="#kitchen" position = "0 100  -100" scale ="0.5 0.5 0.5 " visible="true"></a-entity>
+      <a-entity class="collision" foo gltf-model="#living" position = "0 100  -100" scale ="0.5 0.5 0.5 " visible="true"></a-entity>
+      <a-entity class="collision" foo gltf-model="#master" position = "0 100  -100" scale ="0.5 0.5 0.5 " visible="true"></a-entity>
+     
+
+  <script>
+    if(navigator.serviceWorker){
+      navigator.serviceWorker.register('sw.js')
+    }
+  </script>
+   
+     
+
+      <!-- collision for vr teleport controls -->
+      <!-- <a-entity id="vr-collider" obj-model="obj: url(models/vr-collider.obj)" visible="false"></a-entity> -->
+
+      <!-- <a-entity light="type: ambient; intensity: 0.5;"></a-entity>
+      <a-entity light="type: directional;
+                       castShadow: true;
+                       intensity: 0.4;
+                       shadowCameraVisible: true;"
+                position="0 100  -100"></a-entity> -->
+
+      <!-- <a-sky src="sky.jpg" position = "0 100  -100"  scale ="2 2 2 ></a-sky> -->
+  
+
+
+      <!-- ui element -->
+   
+
+      <!-- environment -->
+    
+
+    </a-scene>
+
+   
+  </body>
+</html>
